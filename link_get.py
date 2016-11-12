@@ -10,7 +10,7 @@ Author=tibneo.deviantart.com
 Name=Mid Dock
 
 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------
 
 ;Metadata added by RainBrowser
 ;http://rainmeter.net/RainCMS/?q=Rainmeter101_AnatomyOfASkin
@@ -59,7 +59,7 @@ IfEqualAction=!execute [!RainmeterHideMeter IconFull][!RainmeterShowMeter IconEm
 IfEqualValue=0
 
 
-;-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+;---------------------------------------------------------------------------
 ;   APPLICATIONS
 
 """
@@ -95,6 +95,7 @@ def get_valid_files():
         except Exception as error:
             icon_path = ""
             print(error)
+            raise
 
         valid_files.append(File(name, icon_path, file.path))
 
