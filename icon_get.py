@@ -6,10 +6,11 @@ from bs4 import BeautifulSoup
 from requests import get
 
 ICON_SIZE = 64, 64
+BIG_MASK_SIZE = 256, 256
 #GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt"
 GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
 
-IMG_SAVE_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+IMG_SAVE_PATH = "." #"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
 
 
 def get_icon(search_term):
@@ -56,9 +57,10 @@ def make_full_icon(image):
 
 
 def make_alpha_icon(image):
-    mask = Image.new('L', ICON_SIZE, 0)
+    mask = Image.new('L', BIG_MASK_SIZE, 0)
     draw = ImageDraw.Draw(mask)
-    draw.ellipse((0, 0) + ICON_SIZE, fill=255)
+    draw.ellipse((0, 0) + BIG_MASK_SIZE, fill=255)
+    mask = mask.resize(ICON_SIZE, Image.ANTIALIAS)
 
     output = ImageOps.fit(image, mask.size, centering=(0.5, 0.5))
     output.putalpha(mask)
