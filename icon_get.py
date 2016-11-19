@@ -5,20 +5,23 @@ from PIL import ImageEnhance, Image, ImageOps, ImageDraw
 from bs4 import BeautifulSoup
 from requests import get
 
-ICON_SIZE = 64, 64
-BIG_MASK_SIZE = 256, 256
-#GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt"
+ICON_SIZE = 48, 48
+BIG_MASK_SIZE = 256, 256  # Used for anti-aliasing
+
 GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
 
-IMG_SAVE_PATH = "." #"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+IMG_SAVE_PATH = "."  #"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+
+OVERWRITE_ICONS = True
 
 
 def get_icon(search_term):
     icon_name = search_term + " icon.png"
     icon_full_path = path.join(IMG_SAVE_PATH, icon_name)
 
-    if icon_name in listdir(IMG_SAVE_PATH):
-        return icon_full_path
+    if not OVERWRITE_ICONS:
+        if icon_name in listdir(IMG_SAVE_PATH):
+            return icon_full_path
 
     print("Looking for " + search_term, "!")
     image = get_image(search_term=search_term)
