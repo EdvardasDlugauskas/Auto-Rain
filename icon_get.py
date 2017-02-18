@@ -1,4 +1,5 @@
 from io import BytesIO
+
 from os import path, listdir
 
 from PIL import ImageEnhance, Image, ImageOps, ImageDraw
@@ -8,11 +9,28 @@ from requests import get
 ICON_SIZE = 48, 48
 BIG_MASK_SIZE = 256, 256  # Used for anti-aliasing
 
+# Filetype is always PNG
 GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
 
-IMG_SAVE_PATH = "."  #"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+IMG_SAVE_PATH = "."  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
 
-OVERWRITE_ICONS = True
+OVERWRITE_ICONS = False
+
+def file_to_bytes(file_path):
+    with open(file_path) as f:
+        bytes = BytesIO(f.read())
+
+    return bytes
+
+def crop_icon_back(icon_path):
+    img = Image.open(icon_path)
+    cropped = img.crop((0, 0, ICON_SIZE[0], ICON_SIZE[0]))
+
+    byte_array = BytesIO()  # empty bytes
+    cropped.save(byte_array, format="png")
+    byte_array.seek(0)  # because PIL seeks to the end and kivy reads again
+
+    return byte_array
 
 
 def get_icon(search_term):
@@ -23,9 +41,9 @@ def get_icon(search_term):
         if icon_name in listdir(IMG_SAVE_PATH):
             return icon_full_path
 
-    print("Looking for " + search_term, "!")
+    print("Looking for " + search_term + "!")
     image = get_image(search_term=search_term)
-    image.thumbnail(ICON_SIZE, Image.ANTIALIAS) # make it a thumbnail, in-place
+    image.thumbnail(ICON_SIZE, Image.ANTIALIAS)  # make it a thumbnail, in-place
 
     full_image = make_full_icon(image)
     full_image.save(icon_full_path)
@@ -33,30 +51,42 @@ def get_icon(search_term):
     return icon_full_path
 
 
+def url_to_bytes(url):
+    img_response = get(url, stream=True)
+    return BytesIO(img_response.content)
+
+
 def get_image(search_term):
+    try:
+        img_element = get_urls(search_term)[0]
+    except IndexError:
+        raise Exception("Could not find img: " + search_term)
+
+    byte_array = url_to_bytes(img_element)
+
+    return Image.open(byte_array)
+
+
+def get_urls(search_term):
     parsed_response = BeautifulSoup(get(GOOGLE_URL_TEMPLATE.format(search_term)).text, "html.parser")
-    img_element = parsed_response.find("img")
-
-    if img_element is None:
-        raise Exception("Could not find image: " + search_term)
-
-    img_response = get(img_element['src'], stream=True)
-
-    return Image.open(BytesIO(img_response.content))
+    return [x['src'] for x in parsed_response.find_all("img")]
 
 
-def make_full_icon(image):
-    w, h = image.size
+def make_full_icon(bytes, save_path):
+    image = Image.open(bytes)
 
-    new_image = Image.new("RGBA", (w*3, h))
+    image.thumbnail(ICON_SIZE, Image.ANTIALIAS)
+    w, h = ICON_SIZE
+
+    new_image = Image.new("RGBA", (w * 3, h))
     img_two = ImageEnhance.Sharpness(image.convert("RGB"))
     img_three = ImageEnhance.Brightness(image.convert("RGB"))
 
     new_image.paste(make_alpha_icon(image), (0, 0))
     new_image.paste(make_alpha_icon(img_two.enhance(2)), (w, 0))
-    new_image.paste(make_alpha_icon(img_three.enhance(1.5)), (w*2, 0))
+    new_image.paste(make_alpha_icon(img_three.enhance(1.5)), (w * 2, 0))
 
-    return new_image
+    new_image.save(save_path)
 
 
 def make_alpha_icon(image):

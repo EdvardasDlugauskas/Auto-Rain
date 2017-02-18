@@ -1,7 +1,9 @@
 import icon_get
+import unittest
 
 
-def test_image_search():
-    T = icon_get.get_image
-    assert T("minecraft")
-    assert T("Dota 2")
+class SmokeTests(unittest.TestCase):
+    def test_image_search(self):
+        T = icon_get.get_image
+        assert T("minecraft")
+        assert T("Dota 2")

@@ -1,0 +1,91 @@
+#:kivy 1.9.1
+
+<MainWidget>:
+    cols: 1
+    id: main_widget
+
+    Button:
+        size_hint: .1, 0.5
+        height: 50
+        font_size: 25
+        text: "Save Configuration"
+        on_press: app.save_config()
+
+    ScrollView:
+        GridLayout:
+            id: entry_list
+            height: self.minimum_height # for scrolling
+            cols: 1
+            size_hint_y: None
+            spacing: 5
+
+
+
+<ListEntry>:
+    orientation: "horizontal"
+    spacing: 5
+    size_hint: 1, None
+    height: 48
+
+    canvas.before:
+        Color:
+            rgb: .03,.03,.03
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    on_press: self.show_options_popup()
+
+    GridLayout:
+        rows: 2
+        size_hint_x: 0.05
+
+        Button:
+            text: "^"
+            on_press: app.main.move_entry_up(root.index)
+
+        Button:
+            text: "v"
+            on_press: app.main.move_entry_down(root.index)
+
+
+    Label:
+        id: icon_info
+        height: 5
+        text_size: self.size[0] * .95, self.size[1]
+        halign: "left"
+        valign: "middle"
+
+
+<OptionsPopup>:
+    title: "Options"
+    size_hint: .7, .7
+
+    BoxLayout:
+        id: popup_layout
+        orientation: "vertical"
+        size_hint: 1, 1
+        pos_hint_x: .5
+        spacing: 5
+
+        GridLayout:
+            spacing: 5
+            cols: 3
+            size_hint_y: None
+            height: '44sp'
+
+
+            Button:
+                text: 'Save'
+                on_release: root.save()
+
+            Button:
+                text: 'Previous image'
+                on_release: root.previous_image()
+
+            Button:
+                text: 'Next image'
+                on_release: root.next_image()
+
+
+
