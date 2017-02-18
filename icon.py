@@ -7,7 +7,7 @@ from PIL import ImageEnhance, Image, ImageOps, ImageDraw
 from bs4 import BeautifulSoup
 from requests import get
 
-from icon_get import get_urls, url_to_bytes
+from icon_get import get_urls, url_to_bytes, crop_icon_back
 
 
 class UrlBytes:
@@ -34,17 +34,26 @@ class Icon:
         self.url_bytes = []
         self.check_urls()
 
+        self.bytes_on_disk = None
         self.icon_on_disk = None
-        self.set_icon_path()  # sets icon_on_disk as well
+        self.set_icon_path()  # sets icon_on_disk, bytes_on_disk as well
 
     def set_icon_path(self):
         icon_name = self.name + " icon.png"
         icon_full_path = path.join(self.IMG_SAVE_PATH, icon_name)
-
-        self.icon_on_disk = True if icon_name in listdir(self.IMG_SAVE_PATH) else False
         self.icon_path = icon_full_path
 
+        if icon_name in listdir(self.IMG_SAVE_PATH):
+            self.icon_on_disk = True
+            self.bytes_on_disk = crop_icon_back(self.icon_path)
+        else:
+            self.icon_on_disk = False
+
     def current_icon_bytes(self):
+        if self.index == -1 and self.bytes_on_disk:
+            self.bytes_on_disk.seek(0)
+            return self.bytes_on_disk
+
         current_urlbytes = self.url_bytes[self.index]
         if current_urlbytes.bytes is None:
             current_urlbytes.bytes = url_to_bytes(current_urlbytes.url)

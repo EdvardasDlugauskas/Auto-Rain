@@ -80,12 +80,9 @@ class ListEntry(ButtonBehavior, BoxLayout):
     def set_image(self):
         # Crop img if it exists already
         if self.icon.icon_on_disk:
-            bytes = crop_icon_back(icon_path=self.icon.icon_path)
-            core_img = CoreImage(bytes, ext="png")
-            self.icon.bytes = bytes
+            core_img = CoreImage(self.icon.bytes_on_disk, ext="png")
 
         else:
-            self.icon.check_urls()
             core_img = core_img_from_url(self.icon.get_next_icon_url())
 
         self.img.texture = core_img.texture
@@ -136,7 +133,7 @@ class RainApp(App):
 
                 #entry.img.texture.save(entry.icon.icon_path)
                 # Make the shit remember if it's texture
-                make_full_icon(entry.icon.bytes, entry.icon.icon_path)
+                make_full_icon(entry.icon.current_icon_bytes(), entry.icon.icon_path)
 
         popup = Popup(size_hint=(.5, .5))
         popup.add_widget(Label(text="Saved successfully"))
