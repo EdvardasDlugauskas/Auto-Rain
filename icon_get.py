@@ -1,7 +1,5 @@
 from io import BytesIO
 
-from os import path, listdir
-
 from PIL import ImageEnhance, Image, ImageOps, ImageDraw
 from bs4 import BeautifulSoup
 from requests import get
@@ -12,7 +10,7 @@ BIG_MASK_SIZE = 256, 256  # Used for anti-aliasing
 # Filetype is always PNG
 GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
 
-IMG_SAVE_PATH = "."  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+IMG_SAVE_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
 
 OVERWRITE_ICONS = False
 
@@ -32,7 +30,7 @@ def crop_icon_back(icon_path):
 
     return byte_array
 
-
+"""
 def get_icon(search_term):
     icon_name = search_term + " icon.png"
     icon_full_path = path.join(IMG_SAVE_PATH, icon_name)
@@ -45,10 +43,11 @@ def get_icon(search_term):
     image = get_image(search_term=search_term)
     image.thumbnail(ICON_SIZE, Image.ANTIALIAS)  # make it a thumbnail, in-place
 
-    full_image = make_full_icon(image)
+    full_image = save_full_icon(image)
     full_image.save(icon_full_path)
 
     return icon_full_path
+"""
 
 
 def url_to_bytes(url):
@@ -72,7 +71,7 @@ def get_urls(search_term):
     return [x['src'] for x in parsed_response.find_all("img")]
 
 
-def make_full_icon(bytes, save_path):
+def save_full_icon(bytes, save_path):
     image = Image.open(bytes)
 
     image.thumbnail(ICON_SIZE, Image.ANTIALIAS)

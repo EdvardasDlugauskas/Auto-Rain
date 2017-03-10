@@ -1,4 +1,5 @@
 kivy
+#kivy.garden.filebrowser
 PIL
 bs4
 requests

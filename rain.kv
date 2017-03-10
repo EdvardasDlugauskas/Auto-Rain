@@ -4,12 +4,20 @@
     cols: 1
     id: main_widget
 
-    Button:
-        size_hint: .1, 0.5
-        height: 50
-        font_size: 25
-        text: "Save Configuration"
-        on_press: app.save_config()
+    GridLayout:
+        rows: 1
+        size_hint_y: None
+        height: 45
+
+        Button:
+            font_size: 25
+            text: "Choose file"
+            on_press: app.open_file_select("test")
+
+        Button:
+            font_size: 25
+            text: "Save Configuration"
+            on_press: app.save_config()
 
     ScrollView:
         GridLayout:
@@ -42,10 +50,12 @@
 
         Button:
             text: "^"
+            background_down: self.background_normal
             on_press: app.main.move_entry_up(root.index)
 
         Button:
             text: "v"
+            background_down: self.background_normal
             on_press: app.main.move_entry_down(root.index)
 
 

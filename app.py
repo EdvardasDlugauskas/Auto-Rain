@@ -1,18 +1,20 @@
+import threading
 from copy import copy
 from os import path
 
 from kivy.app import App
 from kivy.core.image import Image as CoreImage
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.image import Image, AsyncImage
-from kivy.uix.popup import Popup
+from kivy.garden.filebrowser import FileBrowser, get_home_directory
 from kivy.properties import ObjectProperty
-from kivy.uix.button import Button, ButtonBehavior
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import ButtonBehavior
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 
 from files_get import get_icon_objs, CONST_INFO, TEMPLATE, INI_PATH
-from icon_get import crop_icon_back, url_to_bytes, make_full_icon, file_to_bytes
+from icon_get import url_to_bytes, save_full_icon
 
 
 class MainWidget(GridLayout):
@@ -29,6 +31,7 @@ class MainWidget(GridLayout):
             children[index].index, children[index + 1].index = children[index + 1].index, children[index].index
 
 
+# TODO: add progress bar?
 class OptionsPopup(Popup):
     img = ObjectProperty(None)
 
@@ -94,6 +97,7 @@ class ListEntry(ButtonBehavior, BoxLayout):
 
 class RainApp(App):
     main = ObjectProperty(None)
+    select_popup = ObjectProperty(None)
 
     def __init__(self):
         super().__init__()
@@ -111,7 +115,6 @@ class RainApp(App):
 
         return self.main
 
-
     def rebuild_main(self):
         self.icons = get_icon_objs()
         self.main.ids.entry_list.clear_widgets()
@@ -125,21 +128,51 @@ class RainApp(App):
 
         return self.main
 
+    def open_file_select(self, target: str):
+        open_file_selection_popup(target)
+
     def save_config(self):
+        write_thread = threading.Thread(target=self.write_info)
+        write_thread.start()
+
+        self.rebuild_main()
+
+        write_thread.join()
+
+        popup = Popup(size_hint=(.5, .5), title="Success!")
+        popup.add_widget(Label(text="Saved successfully."))
+        popup.open()
+
+    def write_info(self):
         with open(path.join(INI_PATH, "Left Dock.ini"), "w") as ini_file:
             ini_file.write(CONST_INFO)
             for entry in reversed(self.main.ids.entry_list.children):
                 ini_file.write(TEMPLATE.format(entry.icon.name, entry.icon.icon_path, entry.icon.file_path))
+                save_full_icon(entry.icon.current_icon_bytes(), entry.icon.icon_path)
 
-                #entry.img.texture.save(entry.icon.icon_path)
-                # Make the shit remember if it's texture
-                make_full_icon(entry.icon.current_icon_bytes(), entry.icon.icon_path)
 
-        popup = Popup(size_hint=(.5, .5))
-        popup.add_widget(Label(text="Saved successfully"))
-        popup.open()
+def open_file_selection_popup(target_name: str):
+    popup = Popup(size_hint=(.9, .9), title="Select path")
 
-        self.rebuild_main()
+    browser = FileBrowser(select_string='Save', dirselect=True, show_hidden=False)
+    browser.bind(on_success=_fbrowser_success,
+                 on_canceled=popup.dismiss)
+
+    popup.add_widget(browser)
+    popup.open()
+
+
+def _fbrowser_success(instance: FileBrowser):
+    if not instance.selection:
+        selection = instance.path
+    else:
+        selection = instance.selection[0]  # since we aren't using multiselect
+
+    selection = selection.replace("/", "\\")  # kivy bug workaround
+    if selection.startswith("\\"):
+        selection = get_home_directory().split("\\")[0] + selection
+
+    return selection
 
 
 def core_img_from_url(url):

@@ -1,11 +1,4 @@
-from typing import List
 from os import path, listdir
-from collections import namedtuple
-from io import BytesIO
-
-from PIL import ImageEnhance, Image, ImageOps, ImageDraw
-from bs4 import BeautifulSoup
-from requests import get
 
 from icon_get import get_urls, url_to_bytes, crop_icon_back
 
@@ -16,16 +9,16 @@ class UrlBytes:
         self.bytes = bytes
 
 
+# TODO: make async download all the icons at the beginning
 class Icon:
     GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
-    IMG_SAVE_PATH = "."  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+    IMG_SAVE_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
 
     index = -1
 
     def __init__(self, name: str,
                  file_path: str = None,
-                 icon_path: str = None,
-                 urls: List[str] = None):
+                 icon_path: str = None):
 
         self.name = name
         self.file_path = file_path
@@ -61,6 +54,7 @@ class Icon:
         current_urlbytes.bytes.seek(0)
         return current_urlbytes.bytes
 
+    # MAKE THIS CHECK URL BYTES as well async
     def check_urls(self):
         if not self.url_bytes:
             self.update_urls()
