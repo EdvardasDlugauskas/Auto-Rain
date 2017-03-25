@@ -1,0 +1,234 @@
+#:kivy 1.9.1
+#:import SlideTransition kivy.uix.screenmanager.SlideTransition
+
+<MainScreenManager>:
+    MainScreen:
+    SettingsScreen:
+
+<GridLayout>:
+    padding: 2
+    spacing: 5
+
+<Button>:
+    font_size: 25
+    font_name: "robotomono-regular"
+
+<Label>:
+    font_name: "robotomono-regular"
+    valign: "middle"
+    halign: "center"
+
+<MainScreen>:
+    name: "main_screen"
+    GridLayout:
+        cols: 1
+        id: main_widget
+
+        ScrollView:
+            GridLayout:
+                id: entry_list
+                height: self.minimum_height # for scrolling
+                cols: 1
+                size_hint_y: None
+
+
+        GridLayout:
+            rows: 1
+            size_hint_y: None # for height
+            height: 45
+
+
+            Button:
+                text: "Change paths"
+                background_normal: ''
+                background_color: .14, .14, .25, 1
+                on_press:
+                    app.root.transition = SlideTransition(direction='left')
+                    app.root.current = "settings_screen"
+
+            Button:
+                text: "Save Configuration"
+                background_normal: ''
+                background_color: .14, .25, .14, 1
+                on_press: app.save_rainmeter_config()
+
+
+<SettingsScreen>:
+    name: "settings_screen"
+    GridLayout:
+        cols: 1
+
+        BoxLayout:
+            orientation: "vertical"
+
+            Widget: #  spacing
+            SettingsEntry:
+                Button:
+                    size_hint: 1, 1
+                    text: "Icon save folder"
+                    on_release: app.select_path("IMG_SAVE_PATH")
+                Label:
+                    text: "Current: '{}'".format(app.IMG_SAVE_PATH)
+                    text_size: self.size
+                    shorten: True
+                    shorten_from: 'center'
+
+            Widget: #  spacing
+            SettingsEntry:
+                Button:
+                    size_hint: 1, 1
+                    text: "Game/app folder"
+                    on_release: app.select_path("APP_PATH")
+                Label:
+                    text: "Current: '{}'".format(app.APP_PATH)
+                    text_size: self.size
+                    shorten: True
+                    shorten_from: 'center'
+
+            Widget: #  spacing
+            SettingsEntry:
+                Button:
+                    size_hint: 1, 1
+                    text: ".ini file save path"
+                    on_release: app.select_path("INI_PATH")
+                Label:
+                    text: "Current: '{}'".format(app.INI_PATH)
+                    text_size: self.size
+                    shorten: True
+                    shorten_from: 'center'
+            Widget: #  spacing
+
+
+        GridLayout:
+            size_hint_y: None # for height
+            height: 45
+            rows: 1
+
+            Button:
+                text: "Cancel"
+                on_release:
+                    app.set_paths()
+                    app.root.transition = SlideTransition(direction='right')
+                    app.root.current = "main_screen"
+                background_normal: ''
+                background_color: .25, .14, .14, 1
+            Button:
+                text: "Save"
+                on_release:
+                    app.save_path_config()
+                    app.root.transition = SlideTransition(direction='right')
+                    app.root.current = "main_screen"
+                    app.rebuild_main()
+                background_normal: ''
+                background_color: .14, .25, .14, 1
+
+
+<SettingsEntry@GridLayout>:
+    rows: 1
+    size_hint: 1, None
+    height: 56
+    canvas.before:
+        Color:
+            rgb: .03,.03,.03
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+<ListEntry>:
+    orientation: "horizontal"
+    spacing: 5
+    size_hint: 1, None
+    height: 56
+
+    canvas.before:
+        Color:
+            rgb: .03,.03,.03
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    on_press: self.open_entry_options_popup()
+
+    GridLayout:
+        padding: 0
+        spacing: 0
+        rows: 2
+        size_hint_x: None
+        width: 25
+
+        Button:
+            font_size: 20
+            text: "^"
+            background_down: self.background_normal
+            on_press: app.main.move_entry_up(root.index)
+
+        Button:
+            font_size: 17
+            text: "v"
+            background_down: self.background_normal
+            on_press: app.main.move_entry_down(root.index)
+
+
+    Label:
+        id: icon_info
+        font_size: 22
+        height: 5
+        text_size: self.size[0] * .95, self.size[1]
+        shorten: True
+        shorten_from: 'center'
+
+
+<OptionsPopup>:
+    title: "Select image"
+    title_size: 20
+    size_hint: .5, .5
+
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: 1, 1
+        spacing: 5
+
+        BoxLayout:
+            id: popup_layout
+            spacing: 3
+            orientation: "horizontal"
+            size_hint_y: 1
+
+
+            ArrowButton:
+                text: '<--'
+                on_release: root.previous_image()
+
+            ArrowButton:
+                text: '-->'
+                on_release: root.next_image()
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: 40
+            spacing: 5
+
+            Button:
+                text: 'Cancel'
+                on_release: root.dismiss()
+                background_normal: ''
+                background_color: .25, .14, .14, 1
+
+            Button:
+                size_hint_y: None
+                height: 40
+                text: 'Save'
+                background_normal: ''
+                background_color: .14, .25, .14, 1
+                on_release: root.save()
+
+
+<ArrowButton@Button>:
+    pos_hint: {'center_y': 0.5}
+    size_hint_y: None
+    height: 40
+    size_hint_x: None
+    width: 60
+

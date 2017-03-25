@@ -41,17 +41,6 @@ def url_to_bytes(url):
     return BytesIO(img_response.content)
 
 
-def get_image(search_term):
-    try:
-        img_element = get_urls(search_term)[0]
-    except IndexError:
-        raise Exception("Could not find img: " + search_term)
-
-    byte_array = url_to_bytes(img_element)
-
-    return Image.open(byte_array)
-
-
 def get_urls(search_term):
     parsed_response = BeautifulSoup(get(GOOGLE_URL_TEMPLATE.format(search_term)).text, "html.parser")
     return [x['src'] for x in parsed_response.find_all("img")]
