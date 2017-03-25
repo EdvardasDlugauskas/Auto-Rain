@@ -24,20 +24,36 @@
         cols: 1
         id: main_widget
 
-        ScrollView:
-            GridLayout:
-                id: entry_list
-                height: self.minimum_height # for scrolling
-                cols: 1
-                size_hint_y: None
+        GridLayout:
+            rows: 1
+            ScrollView:
+                id: main_scrollview
+                do_scroll_x: False
+                bar_width: 0
+                on_scroll_y:
+                    root.slider_change(main_slider, self)
+                GridLayout:
+                    id: entry_list
+                    height: self.minimum_height # for scrolling
+                    cols: 1
+                    size_hint_y: None
 
+            Slider:
+                id: main_slider
+                orientation: 'vertical'
+                size_hint: None, 0.95
+                width: 15
+                min: 0
+                max: 1
+                value: 1
+                step: 0.01
+                on_value:
+                    root.scroll_change(main_scrollview, self)
 
         GridLayout:
             rows: 1
             size_hint_y: None # for height
             height: 45
-
-
             Button:
                 text: "Change paths"
                 background_normal: ''

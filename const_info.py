@@ -71,39 +71,3 @@ Y=2R
 ButtonImage="{}"
 ButtonCommand=!execute ["{}"]
 """
-
-
-"""
-def get_valid_files():
-    directory = scandir(APP_PATH)
-
-    accepted_programs = filter(lambda x: x.is_file(), directory)
-
-    valid_files = []
-    for program in accepted_programs:
-        name, extension = path.splitext(program.name)
-
-        if extension not in VALID_EXTENSIONS:
-            continue
-
-        try:
-            icon_path = icon_get.get_icon(name)
-        except Exception as error:
-            #icon_path = ""
-            print(error)
-            raise
-
-        valid_files.append(File(name, icon_path, program.path))
-
-    return valid_files
-
-"""
-
-
-#if __name__ == "__main__":
-    #valid_files = get_valid_files()
-
-    #with open(path.join(INI_PATH, "Left Dock.ini"), "w") as ini_file:
-        #ini_file.write(CONST_INFO)
-        #for file in valid_files:
-            #ini_file.write(TEMPLATE.format(file.name, file.icon_path, file.file_path))

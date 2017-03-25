@@ -21,18 +21,26 @@ class Icon:
         self.image_save_path = image_save_path
 
         self.url_bytes = []
-        self.icon_path = self.icon_on_disk = self.bytes_on_disk = None
-        self.set_icon_path()  # sets icon_path, icon_on_disk, bytes_on_disk
+        self.icon_path = self.bytes_on_disk = None
+        self.set_icon_path()  # sets icon_path and bytes_on_disk
+
+    @property
+    def icon_on_disk(self):
+        if self.bytes_on_disk:
+            return True
+        else:
+            return False
+
 
     def set_icon_path(self):
         icon_name = self.name + " icon.png"
-        self.icon_path = path.join(self.image_save_path, icon_name)
+        self.icon_path = path.join(path.abspath(self.image_save_path), icon_name)
 
         if icon_name in listdir(self.image_save_path):
-            self.icon_on_disk = True
-            self.bytes_on_disk = crop_icon_back(self.icon_path)
-        else:
-            self.icon_on_disk = False
+            self.load_icon_from_disk()
+
+    def load_icon_from_disk(self):
+        self.bytes_on_disk = crop_icon_back(self.icon_path)
 
     def current_icon_bytes(self):
         if self.index == -1 and self.bytes_on_disk:

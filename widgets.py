@@ -29,6 +29,7 @@ class SettingsScreen(Screen):
     pass
 
 
+# TODO: this bug again?
 class MainScreenManager(ScreenManager):
     def move_entry_down(self, index: int):
         children = self.current_screen.ids.entry_list.children
@@ -63,7 +64,7 @@ class ListEntry(ButtonBehavior, BoxLayout):
 
     def set_image(self):
         # Crop img if it exists already
-        if self.icon.icon_on_disk and self.icon.bytes_on_disk:
+        if self.icon.icon_on_disk:
             self.icon.bytes_on_disk.seek(0)
             core_img = CoreImage(self.icon.bytes_on_disk, ext="png")
 

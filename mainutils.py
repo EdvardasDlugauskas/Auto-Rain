@@ -8,7 +8,7 @@ from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
-from files_get import CONST_INFO, TEMPLATE, VALID_EXTENSIONS
+from const_info import CONST_INFO, TEMPLATE, VALID_EXTENSIONS
 from icon import Icon
 from icon_get import save_full_icon
 from libs.garden.filebrowser import FileBrowser
@@ -46,7 +46,7 @@ def write_info(app):
             icon = entry.icon
             ini_file.write(TEMPLATE.format(icon.name, icon.icon_path, icon.image_save_path))
             save_full_icon(icon.current_icon_bytes(), icon.icon_path)
-            icon.icon_on_disk = True
+            icon.load_icon_from_disk()
 
 
 async def get_icon_objs(app):

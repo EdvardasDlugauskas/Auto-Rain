@@ -13,7 +13,7 @@ class RainApp(App):
     APP_PATH = StringProperty(".")  # 'C:\\Users\\Family\\Desktop\\Root\\Games' # Insert folder file
     INI_PATH = StringProperty(".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left"
 
-    main = ObjectProperty()
+    main = ObjectProperty(None)
     icon = ListProperty([])
 
     def __init__(self):
@@ -22,28 +22,27 @@ class RainApp(App):
     def build(self):
         self.set_paths()
         self.main = MainScreenManager()
-
-        loop = asyncio.get_event_loop()
-        icons = loop.run_until_complete(get_icon_objs(self))
-
-        for i, icon in enumerate(icons, start=0):
-            new = ListEntry(icon, len(icons) - 1 - i)
-            self.main.current_screen.ids.entry_list.add_widget(new)
+        self.populate_main()
 
         return self.main
 
     def rebuild_main(self):
         """
         After saving new icons, the list needs to be reloaded.
+        
+        
+        
         """
+        self.main.current_screen.ids.entry_list.clear_widgets()
+        self.populate_main()
+
+    def populate_main(self):
         loop = asyncio.get_event_loop()
         icons = loop.run_until_complete(get_icon_objs(self))
 
-        self.main.current_screen.ids.entry_list.clear_widgets()
-
-        for i, icon in enumerate(icons):
+        for i, icon in enumerate(icons, start=1):
+            # Reverse order for the right index
             new = ListEntry(icon, len(icons) - i)
-            new.set_image()
             self.main.current_screen.ids.entry_list.add_widget(new)
 
     def reload_main(self):
