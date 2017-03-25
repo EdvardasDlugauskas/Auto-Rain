@@ -1,186 +1,105 @@
-import threading
-from copy import copy
-from os import path
+# required for PyInstaller
 
 from kivy.app import App
-from kivy.core.image import Image as CoreImage
-from kivy.garden.filebrowser import FileBrowser, get_home_directory
-from kivy.properties import ObjectProperty
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import ButtonBehavior
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.image import AsyncImage
-from kivy.uix.label import Label
-from kivy.uix.popup import Popup
+from kivy.properties import StringProperty, ListProperty
 
-from files_get import get_icon_objs, CONST_INFO, TEMPLATE, INI_PATH
-from icon_get import url_to_bytes, save_full_icon
-
-
-class MainWidget(GridLayout):
-    def move_entry_up(self, index):
-        children = self.ids.entry_list.children
-        if index > 0:
-            children[index], children[index - 1] = children[index - 1], children[index]
-            children[index].index, children[index - 1].index = children[index - 1].index, children[index].index
-
-    def move_entry_down(self, index):
-        children = self.ids.entry_list.children
-        if index < len(children) - 1:
-            children[index], children[index + 1] = children[index + 1], children[index]
-            children[index].index, children[index + 1].index = children[index + 1].index, children[index].index
-
-
-# TODO: add progress bar?
-class OptionsPopup(Popup):
-    img = ObjectProperty(None)
-
-    # Make options popup img change together/without the entry img
-    # Copy Icon object in entry, mingle with it, then save/discard it
-    def __init__(self, entry, **kwargs):
-        super().__init__(**kwargs)
-        self.entry = entry
-        self.icon = copy(entry.icon)
-
-        self.img = AsyncImage(allow_stretch=False)
-        self.set_image()
-
-        self.ids.popup_layout.add_widget(self.img)
-
-    def next_image(self):
-        self.icon.get_next_icon_url()
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def previous_image(self):
-        self.icon.get_previous_icon_url()
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def set_image(self):
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def save(self):
-        self.entry.icon = self.icon
-        self.entry.img.texture = self.img.texture
-        self.dismiss()
-
-
-class ListEntry(ButtonBehavior, BoxLayout):
-    img = ObjectProperty(None)
-    icon = ObjectProperty(None)
-
-    def __init__(self, icon, index, **kwargs):
-        super().__init__(**kwargs)
-
-        self.index = index
-        self.icon = icon
-        self.ids.icon_info.text = icon.name
-
-        self.img = AsyncImage(height=self.height, allow_stretch=True,
-                              size_hint=(.1, 1))
-
-        self.add_widget(self.img, index=len(self.children) - 1)
-
-    def set_image(self):
-        # Crop img if it exists already
-        if self.icon.icon_on_disk:
-            core_img = CoreImage(self.icon.bytes_on_disk, ext="png")
-
-        else:
-            core_img = core_img_from_url(self.icon.get_next_icon_url())
-
-        self.img.texture = core_img.texture
-
-    def show_options_popup(self):
-        popup = OptionsPopup(self)
-        popup.open()
+from mainutils import *
+from widgets import ListEntry, MainScreenManager
 
 
 class RainApp(App):
-    main = ObjectProperty(None)
-    select_popup = ObjectProperty(None)
+    IMG_SAVE_PATH = StringProperty(
+        ".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+    APP_PATH = StringProperty(".")  # 'C:\\Users\\Family\\Desktop\\Root\\Games' # Insert folder file
+    INI_PATH = StringProperty(".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left"
+
+    main = ObjectProperty()
+    icon = ListProperty([])
 
     def __init__(self):
         super().__init__()
-        self.icons = None
 
     def build(self):
-        self.icons = get_icon_objs()
-        self.main = MainWidget()
-        for i, icon in enumerate(self.icons):
-            new = ListEntry(icon, i)
-            self.main.ids.entry_list.add_widget(new)
+        self.set_paths()
+        self.main = MainScreenManager()
 
-        for entry in self.main.ids.entry_list.children:
-            entry.set_image()
+        loop = asyncio.get_event_loop()
+        icons = loop.run_until_complete(get_icon_objs(self))
+
+        for i, icon in enumerate(icons, start=0):
+            new = ListEntry(icon, len(icons) - 1 - i)
+            self.main.current_screen.ids.entry_list.add_widget(new)
 
         return self.main
 
     def rebuild_main(self):
-        self.icons = get_icon_objs()
-        self.main.ids.entry_list.clear_widgets()
+        """
+        After saving new icons, the list needs to be reloaded.
+        """
+        loop = asyncio.get_event_loop()
+        icons = loop.run_until_complete(get_icon_objs(self))
 
-        for i, icon in enumerate(self.icons):
-            new = ListEntry(icon, i)
-            self.main.ids.entry_list.add_widget(new)
+        self.main.current_screen.ids.entry_list.clear_widgets()
 
-        for entry in self.main.ids.entry_list.children:
+        for i, icon in enumerate(icons):
+            new = ListEntry(icon, len(icons) - i)
+            new.set_image()
+            self.main.current_screen.ids.entry_list.add_widget(new)
+
+    def reload_main(self):
+        for entry in self.main.current_screen.ids.entry_list.children:
             entry.set_image()
 
-        return self.main
+    def build_config(self, config):
+        config.setdefaults('paths', {
+            'IMG_SAVE_PATH': '.',
+            'APP_PATH': '.',
+            'INI_PATH': '.'
+        })
 
-    def open_file_select(self, target: str):
-        open_file_selection_popup(target)
+    def set_paths(self):
+        config = self.config
+        self.APP_PATH = config.get("paths", "APP_PATH")
+        self.INI_PATH = config.get("paths", "INI_PATH")
+        self.IMG_SAVE_PATH = config.get("paths", "IMG_SAVE_PATH")
 
-    def save_config(self):
-        write_thread = threading.Thread(target=self.write_info)
-        write_thread.start()
+    def select_path(self, target: str):
+        popup = Popup(size_hint=(.9, .9), title="Select path")
 
-        self.rebuild_main()
+        browser = FileBrowser(select_string='Save', dirselect=True, show_hidden=False, filters=["!.sys"])
 
-        write_thread.join()
+        def success(instance):
+            setattr(self, target, browser_selection(browser))
+            popup.dismiss()
 
-        popup = Popup(size_hint=(.5, .5), title="Success!")
-        popup.add_widget(Label(text="Saved successfully."))
+        browser.bind(on_success=success,
+                     on_canceled=popup.dismiss)
+
+        popup.add_widget(browser)
         popup.open()
 
-    def write_info(self):
-        with open(path.join(INI_PATH, "Left Dock.ini"), "w") as ini_file:
-            ini_file.write(CONST_INFO)
-            for entry in reversed(self.main.ids.entry_list.children):
-                ini_file.write(TEMPLATE.format(entry.icon.name, entry.icon.icon_path, entry.icon.file_path))
-                save_full_icon(entry.icon.current_icon_bytes(), entry.icon.icon_path)
+    def save_rainmeter_config(self):
+        save_rainmeter_configuration(self)
 
-
-def open_file_selection_popup(target_name: str):
-    popup = Popup(size_hint=(.9, .9), title="Select path")
-
-    browser = FileBrowser(select_string='Save', dirselect=True, show_hidden=False)
-    browser.bind(on_success=_fbrowser_success,
-                 on_canceled=popup.dismiss)
-
-    popup.add_widget(browser)
-    popup.open()
-
-
-def _fbrowser_success(instance: FileBrowser):
-    if not instance.selection:
-        selection = instance.path
-    else:
-        selection = instance.selection[0]  # since we aren't using multiselect
-
-    selection = selection.replace("/", "\\")  # kivy bug workaround
-    if selection.startswith("\\"):
-        selection = get_home_directory().split("\\")[0] + selection
-
-    return selection
-
-
-def core_img_from_url(url):
-    return CoreImage(url_to_bytes(url), ext="png")
+    def save_path_config(self):
+        config = self.config
+        config.set("paths", "APP_PATH", self.APP_PATH)
+        config.set("paths", "INI_PATH", self.INI_PATH)
+        config.set("paths", "IMG_SAVE_PATH", self.IMG_SAVE_PATH)
+        config.write()
 
 
 if __name__ == '__main__':
-    RainApp().run()
+    try:
+        RainApp().run()
+    except Exception as e:
+        import traceback
+
+        print("An exception occurred:", traceback.format_exc())
+        with open("errorlog.txt", "w") as errorfile:
+            errorfile.write(traceback.format_exc())
+        raise
+
 
 """
 # Set widget colour
@@ -190,6 +109,4 @@ canvas.before:
     Rectangle:
         pos: self.pos
         size: self.size
-
-
 """

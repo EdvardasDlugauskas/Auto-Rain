@@ -9,34 +9,26 @@ class UrlBytes:
         self.bytes = bytes
 
 
-# TODO: make async download all the icons at the beginning
 class Icon:
+    # TODO: use official Google API
     GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
-    IMG_SAVE_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
-
     index = -1
 
     def __init__(self, name: str,
-                 file_path: str = None,
-                 icon_path: str = None):
+                 image_save_path: str):
 
         self.name = name
-        self.file_path = file_path
-        self.icon_path = icon_path
+        self.image_save_path = image_save_path
 
         self.url_bytes = []
-        self.check_urls()
-
-        self.bytes_on_disk = None
-        self.icon_on_disk = None
-        self.set_icon_path()  # sets icon_on_disk, bytes_on_disk as well
+        self.icon_path = self.icon_on_disk = self.bytes_on_disk = None
+        self.set_icon_path()  # sets icon_path, icon_on_disk, bytes_on_disk
 
     def set_icon_path(self):
         icon_name = self.name + " icon.png"
-        icon_full_path = path.join(self.IMG_SAVE_PATH, icon_name)
-        self.icon_path = icon_full_path
+        self.icon_path = path.join(self.image_save_path, icon_name)
 
-        if icon_name in listdir(self.IMG_SAVE_PATH):
+        if icon_name in listdir(self.image_save_path):
             self.icon_on_disk = True
             self.bytes_on_disk = crop_icon_back(self.icon_path)
         else:
@@ -54,7 +46,6 @@ class Icon:
         current_urlbytes.bytes.seek(0)
         return current_urlbytes.bytes
 
-    # MAKE THIS CHECK URL BYTES as well async
     def check_urls(self):
         if not self.url_bytes:
             self.update_urls()

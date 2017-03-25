@@ -1,7 +1,4 @@
 from collections import namedtuple
-from os import path, scandir
-
-from icon import Icon
 
 File = namedtuple("File", ["name", "icon_path", "file_path"])
 
@@ -65,9 +62,6 @@ IfEqualValue=0
 
 """
 
-APP_PATH = "."#'C:\\Users\\Family\\Desktop\\Root\\Games' # Insert folder file
-INI_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left"
-
 VALID_EXTENSIONS = ['.lnk', '.exe', '.url']
 
 TEMPLATE = """
@@ -104,22 +98,6 @@ def get_valid_files():
     return valid_files
 
 """
-
-
-def get_icon_objs():
-    directory = scandir(APP_PATH)
-    # filter(lambda x: x.is_file(), directory)
-    accepted_programs = [x for x in directory if x.is_file()]
-
-    valid_files = []
-    for program in accepted_programs:
-        name, extension = path.splitext(program.name)
-        if extension not in VALID_EXTENSIONS:
-            continue
-
-        valid_files.append(Icon(name=name, file_path=program.path))
-
-    return valid_files
 
 
 #if __name__ == "__main__":

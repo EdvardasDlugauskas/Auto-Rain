@@ -2,6 +2,7 @@ from io import BytesIO
 
 from PIL import ImageEnhance, Image, ImageOps, ImageDraw
 from bs4 import BeautifulSoup
+from kivy.core.image import Image as CoreImage
 from requests import get
 
 ICON_SIZE = 48, 48
@@ -10,15 +11,19 @@ BIG_MASK_SIZE = 256, 256  # Used for anti-aliasing
 # Filetype is always PNG
 GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
 
-IMG_SAVE_PATH = "."#"C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
-
 OVERWRITE_ICONS = False
+
+
+def core_img_from_url(url):
+    return CoreImage(url_to_bytes(url), ext="png")
+
 
 def file_to_bytes(file_path):
     with open(file_path) as f:
-        bytes = BytesIO(f.read())
+        byte_array = BytesIO(f.read())
 
-    return bytes
+    return byte_array
+
 
 def crop_icon_back(icon_path):
     img = Image.open(icon_path)
@@ -29,25 +34,6 @@ def crop_icon_back(icon_path):
     byte_array.seek(0)  # because PIL seeks to the end and kivy reads again
 
     return byte_array
-
-"""
-def get_icon(search_term):
-    icon_name = search_term + " icon.png"
-    icon_full_path = path.join(IMG_SAVE_PATH, icon_name)
-
-    if not OVERWRITE_ICONS:
-        if icon_name in listdir(IMG_SAVE_PATH):
-            return icon_full_path
-
-    print("Looking for " + search_term + "!")
-    image = get_image(search_term=search_term)
-    image.thumbnail(ICON_SIZE, Image.ANTIALIAS)  # make it a thumbnail, in-place
-
-    full_image = save_full_icon(image)
-    full_image.save(icon_full_path)
-
-    return icon_full_path
-"""
 
 
 def url_to_bytes(url):
@@ -71,8 +57,8 @@ def get_urls(search_term):
     return [x['src'] for x in parsed_response.find_all("img")]
 
 
-def save_full_icon(bytes, save_path):
-    image = Image.open(bytes)
+def save_full_icon(image_bytes, save_path):
+    image = Image.open(image_bytes)
 
     image.thumbnail(ICON_SIZE, Image.ANTIALIAS)
     w, h = ICON_SIZE
