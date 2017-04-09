@@ -1,4 +1,4 @@
-# required for PyInstaller
+import win32timezone  # required for PyInstaller
 
 from kivy.app import App
 from kivy.properties import StringProperty, ListProperty
