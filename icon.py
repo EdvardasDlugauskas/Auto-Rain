@@ -31,7 +31,6 @@ class Icon:
         else:
             return False
 
-
     def set_icon_path(self):
         icon_name = self.name + " icon.png"
         self.icon_path = path.join(path.abspath(self.image_save_path), icon_name)

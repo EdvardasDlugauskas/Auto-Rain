@@ -126,6 +126,7 @@
                     app.set_paths()
                     app.root.transition = SlideTransition(direction='right')
                     app.root.current = "main_screen"
+                    root.needs_rebuild = False
                 background_normal: ''
                 background_color: .25, .14, .14, 1
             Button:
@@ -134,7 +135,7 @@
                     app.save_path_config()
                     app.root.transition = SlideTransition(direction='right')
                     app.root.current = "main_screen"
-                    app.rebuild_main()
+                    root.rebuild_if_needed(app)
                 background_normal: ''
                 background_color: .14, .25, .14, 1
 

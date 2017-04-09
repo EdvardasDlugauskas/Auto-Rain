@@ -1,5 +1,5 @@
 from kivy.core.image import Image as CoreImage
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import AsyncImage
@@ -7,7 +7,6 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 
 from icon_get import core_img_from_url
 from mainutils import OptionsPopup
-
 
 class MainScreen(Screen):
     """
@@ -26,10 +25,14 @@ class MainScreen(Screen):
 
 
 class SettingsScreen(Screen):
-    pass
+    needs_rebuild = BooleanProperty(False)
+
+    def rebuild_if_needed(self, app_instance):
+        if self.needs_rebuild:
+            app_instance.rebuild_main()
+        self.needs_rebuild = False
 
 
-# TODO: this bug again?
 class MainScreenManager(ScreenManager):
     def move_entry_down(self, index: int):
         children = self.current_screen.ids.entry_list.children

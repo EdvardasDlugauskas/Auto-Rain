@@ -29,8 +29,8 @@ def save_rainmeter_configuration(app):
         text = str(e)
         raise
 
-    popup = Popup(size_hint=(.45, .45), title=title)
-    popup.add_widget(Label(text=text, font_size=20))
+    popup = Popup(size_hint=(.45, .30), title=title)
+    popup.add_widget(Label(text=text, font_size=25))
     popup.open()
 
 

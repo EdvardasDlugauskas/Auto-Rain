@@ -30,8 +30,6 @@ class RainApp(App):
         """
         After saving new icons, the list needs to be reloaded.
         
-        
-        
         """
         self.main.current_screen.ids.entry_list.clear_widgets()
         self.populate_main()
@@ -65,10 +63,17 @@ class RainApp(App):
     def select_path(self, target: str):
         popup = Popup(size_hint=(.9, .9), title="Select path")
 
-        browser = FileBrowser(select_string='Save', dirselect=True, show_hidden=False, filters=["!.sys"])
+        browser = FileBrowser(select_string='Save', dirselect=True,
+                              show_hidden=False, filters=["!.sys"])
+
+        default_path = getattr(self, target)
+        if path.exists(default_path):
+            browser.path = default_path
 
         def success(instance):
             setattr(self, target, browser_selection(browser))
+            if target in ("APP_PATH",):  # Needs rebuild
+                self.main.current_screen.needs_rebuild = True
             popup.dismiss()
 
         browser.bind(on_success=success,
