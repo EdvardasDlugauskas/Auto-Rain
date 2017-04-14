@@ -44,7 +44,7 @@ def write_info(app):
         ini_file.write(CONST_INFO)
         for entry in reversed(app.main.current_screen.ids.entry_list.children):
             icon = entry.icon
-            ini_file.write(TEMPLATE.format(icon.name, icon.icon_path, icon.image_save_path))
+            ini_file.write(TEMPLATE.format(icon.name, icon.icon_path, icon.app_path))
             save_full_icon(icon.current_icon_bytes(), icon.icon_path)
             icon.load_icon_from_disk()
 
@@ -63,7 +63,7 @@ async def get_icon_objs(app):
     for program in accepted_programs:
         name, extension = path.splitext(program.name)
         if extension in VALID_EXTENSIONS:
-            valid_files.append(Icon(name=name, image_save_path=app.IMG_SAVE_PATH))
+            valid_files.append(Icon(name=name, image_save_path=app.IMG_SAVE_PATH, app_path=program.path))
 
     # Async stuff
     loop = asyncio.get_event_loop()

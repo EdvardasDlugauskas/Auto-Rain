@@ -15,10 +15,12 @@ class Icon:
     index = -1
 
     def __init__(self, name: str,
-                 image_save_path: str):
+                 image_save_path: str,
+                 app_path: str):
 
         self.name = name
         self.image_save_path = image_save_path
+        self.app_path = app_path
 
         self.url_bytes = []
         self.icon_path = self.bytes_on_disk = None
@@ -70,7 +72,10 @@ class Icon:
         elif self.index == -1:
             self.index = len(self.url_bytes) - 1
 
-        return self.url_bytes[self.index].url
+        if self.url_bytes:
+            return self.url_bytes[self.index].url
+        else:
+            return None
 
     def get_next_icon_url(self):
         self.index += 1
