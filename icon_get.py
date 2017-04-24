@@ -56,14 +56,21 @@ def save_full_icon(image_bytes, save_path):
     img_two = ImageEnhance.Sharpness(image.convert("RGB"))
     img_three = ImageEnhance.Brightness(image.convert("RGB"))
 
-    new_image.paste(make_alpha_icon(image), (0, 0))
-    new_image.paste(make_alpha_icon(img_two.enhance(2)), (w, 0))
-    new_image.paste(make_alpha_icon(img_three.enhance(1.5)), (w * 2, 0))
+    new_image.paste(image, (0, 0))
+    new_image.paste(img_two.enhance(2), (w, 0))
+    new_image.paste(img_three.enhance(1.5), (w * 2, 0))
+
+    """ # For altered shape use
+    new_image.paste(make_into_shape(image), (0, 0))
+    new_image.paste(make_into_shape(img_two.enhance(2)), (w, 0))
+    new_image.paste(make_into_shape(img_three.enhance(1.5)), (w * 2, 0))
+
+    """
 
     new_image.save(save_path)
 
 
-def make_alpha_icon(image):
+def make_into_shape(image):
     mask = Image.new('L', BIG_MASK_SIZE, 0)
     draw = ImageDraw.Draw(mask)
     draw.ellipse((0, 0) + BIG_MASK_SIZE, fill=255)

@@ -1,6 +1,8 @@
 import asyncio
 from copy import copy
 from os import path, scandir
+import re
+from typing import List
 
 from kivy.core.image import Image as CoreImage
 from kivy.properties import ObjectProperty
@@ -23,11 +25,10 @@ def save_rainmeter_configuration(app):
     text = "Saved successfully."
     try:
         write_info(app)
-        app.reload_main()
+        app.reload_images()
     except Exception as e:
         title = "Error!"
         text = str(e)
-        raise
 
     popup = Popup(size_hint=(.45, .30), title=title)
     popup.add_widget(Label(text=text, font_size=25))
@@ -113,3 +114,24 @@ class OptionsPopup(Popup):
         self.entry.icon = self.icon
         self.entry.img.texture = self.img.texture
         self.dismiss()
+
+
+def sort_by_ini(icons: List[Icon], ini_path: str = None, ini_str: str = None) -> List[Icon]:
+    if ini_path is ini_str is None:
+        raise ValueError("No .ini path or string provided.")
+
+    text = ""
+    if ini_path:
+        with open(ini_path) as file:
+            text = file.read()
+    elif ini_str:
+        text = ini_str
+
+    text = text.split("APPLICATION")[1]
+    pattern = "\[(.*?)\]"
+    sort_list = re.findall(pattern, text)
+
+    return sorted(icons, key=lambda x: sort_list.index(x.name) if x.name in sort_list else -1)
+
+
+import kivy.uix.widget

@@ -10,7 +10,7 @@ from widgets import ListEntry, MainScreenManager
 
 class RainApp(App):
     IMG_SAVE_PATH = StringProperty(
-        ".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons" # Where are the icons saved?
+        ".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons"
     APP_PATH = StringProperty(".")  # 'C:\\Users\\Family\\Desktop\\Root\\Games' # Insert folder file
     INI_PATH = StringProperty(".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left"
 
@@ -38,13 +38,14 @@ class RainApp(App):
     def populate_main(self):
         loop = asyncio.get_event_loop()
         icons = loop.run_until_complete(get_icon_objs(self))
+        icons = sort_by_ini(icons, path.join(self.INI_PATH, "Left Dock.ini"))
 
         for i, icon in enumerate(icons, start=1):
             # Reverse order for the right index
             new = ListEntry(icon, len(icons) - i)
             self.main.current_screen.ids.entry_list.add_widget(new)
 
-    def reload_main(self):
+    def reload_images(self):
         for entry in self.main.current_screen.ids.entry_list.children:
             entry.set_image()
 
