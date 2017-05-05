@@ -2,8 +2,7 @@ import win32timezone
 import encodings.idna  # required for PyInstaller
 
 from kivy.app import App
-from kivy.properties import StringProperty, ListProperty
-
+from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from mainutils import *
 from widgets import ListEntry, MainScreenManager
 
@@ -40,9 +39,9 @@ class RainApp(App):
         icons = loop.run_until_complete(get_icon_objs(self))
         icons = sort_by_ini(icons, path.join(self.INI_PATH, "Left Dock.ini"))
 
-        for i, icon in enumerate(icons, start=1):
+        for icon in icons:
             # Reverse order for the right index
-            new = ListEntry(icon, len(icons) - i)
+            new = ListEntry(icon)
             self.main.current_screen.ids.entry_list.add_widget(new)
 
     def reload_images(self):
@@ -84,16 +83,6 @@ class RainApp(App):
         popup.add_widget(browser)
         popup.open()
 
-    def save_rainmeter_config(self):
-        save_rainmeter_configuration(self)
-
-    def save_path_config(self):
-        config = self.config
-        config.set("paths", "APP_PATH", self.APP_PATH)
-        config.set("paths", "INI_PATH", self.INI_PATH)
-        config.set("paths", "IMG_SAVE_PATH", self.IMG_SAVE_PATH)
-        config.write()
-
 
 if __name__ == '__main__':
     try:
@@ -101,7 +90,7 @@ if __name__ == '__main__':
     except Exception as e:
         import traceback
 
-        print("An exception occurred:", traceback.format_exc())
+        # print("An exception occurred:", traceback.format_exc())
         with open("errorlog.txt", "w") as errorfile:
             errorfile.write(traceback.format_exc())
         raise

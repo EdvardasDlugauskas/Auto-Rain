@@ -5,7 +5,8 @@ from bs4 import BeautifulSoup
 from kivy.core.image import Image as CoreImage
 from requests import get
 
-ICON_SIZE = 48, 48
+from const_info import ICON_SIZE
+
 BIG_MASK_SIZE = 256, 256  # Used for anti-aliasing
 
 # Filetype is always PNG

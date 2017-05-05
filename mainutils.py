@@ -1,12 +1,8 @@
 import asyncio
-from copy import copy
-from os import path, scandir
 import re
+from os import path, scandir
 from typing import List
 
-from kivy.core.image import Image as CoreImage
-from kivy.properties import ObjectProperty
-from kivy.uix.image import AsyncImage
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
@@ -50,6 +46,13 @@ def write_info(app):
             icon.load_icon_from_disk()
 
 
+def save_path_configuration(app):
+    config = app.config
+    config.set("paths", "APP_PATH", app.APP_PATH)
+    config.set("paths", "INI_PATH", app.INI_PATH)
+    config.set("paths", "IMG_SAVE_PATH", app.IMG_SAVE_PATH)
+    config.write()
+
 async def get_icon_objs(app):
     """
     Gets the icons for apps/games asynchronously
@@ -86,52 +89,23 @@ def browser_selection(instance: FileBrowser):
     return selection
 
 
-class OptionsPopup(Popup):
-    img = ObjectProperty(None)
-
-    def __init__(self, entry, **kwargs):
-        super().__init__(**kwargs)
-        self.entry = entry
-        self.icon = copy(entry.icon)
-
-        self.img = AsyncImage(allow_stretch=False)
-        self.set_image()
-
-        self.ids.popup_layout.add_widget(self.img, index=1)
-
-    def next_image(self):
-        self.icon.get_next_icon_url()
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def previous_image(self):
-        self.icon.get_previous_icon_url()
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def set_image(self):
-        self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
-
-    def save(self):
-        self.entry.icon = self.icon
-        self.entry.img.texture = self.img.texture
-        self.dismiss()
-
-
 def sort_by_ini(icons: List[Icon], ini_path: str = None, ini_str: str = None) -> List[Icon]:
-    if ini_path is ini_str is None:
-        raise ValueError("No .ini path or string provided.")
+    try:
+        if ini_path is ini_str is None:
+            raise ValueError("No .ini path or string provided.")
 
-    text = ""
-    if ini_path:
-        with open(ini_path) as file:
-            text = file.read()
-    elif ini_str:
-        text = ini_str
+        text = ""
+        if ini_path:
+            with open(ini_path) as file:
+                text = file.read()
+        elif ini_str:
+            text = ini_str
 
-    text = text.split("APPLICATION")[1]
-    pattern = "\[(.*?)\]"
-    sort_list = re.findall(pattern, text)
+        text = text.split("APPLICATION")[1]
+        pattern = "\[(.*?)\]"
+        sort_list = re.findall(pattern, text)
 
-    return sorted(icons, key=lambda x: sort_list.index(x.name) if x.name in sort_list else -1)
+        return sorted(icons, key=lambda x: sort_list.index(x.name) if x.name in sort_list else -1)
 
-
-import kivy.uix.widget
+    except:
+        return icons

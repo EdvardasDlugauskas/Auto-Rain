@@ -1,6 +1,7 @@
 #:kivy 1.9.1
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
-
+#:import mainutils mainutils
+#:import ICON_SIZE const_info.ICON_SIZE
 
 
 <MainScreenManager>:
@@ -16,7 +17,7 @@
     spacing: 5
 
 <Button>:
-    font_size: 25
+    font_size: 15
     font_name: "robotomono-regular"
 
 <Label>:
@@ -45,22 +46,38 @@
                     app_icon_height: 25
 
 
-                ActionOverflow:
                 ActionButton:
-                    #size_hint: 0.2, None
-                    #height: 40
                     text: "Refresh"
-                    #pos_hint_x: 0.5
                     on_release: app.rebuild_main()
+
+                ActionButton:
+                    text: "Options"
+                    on_release:
+                        app.root.transition = SlideTransition(direction='left')
+                        app.root.current = "settings_screen"
+                        self.parent.is_open = False
+
+                ActionButton:
+                    text: "Save"
+                    on_release: mainutils.save_rainmeter_configuration(app)
+
 
         BoxLayout:
             orientation: "horizontal"
-            ScrollView:
+            MyScroll:
                 id: main_scrollview
-                do_scroll_x: False
+
                 bar_width: 0
+
+                # Together practically disable drag-scrolling
+                scroll_timeout: 1
+                scroll_distance: 100
+
+                do_scroll_x: False
+
                 on_scroll_y:
-                    root.slider_change(main_slider, self)
+                    main_slider.value = self.scroll_y
+
                 GridLayout:
                     id: entry_list
                     height: self.minimum_height # for scrolling
@@ -70,32 +87,14 @@
             Slider:
                 id: main_slider
                 orientation: 'vertical'
-                size_hint: None, 0.95
+                size_hint: None, 1
                 width: 15
                 min: 0
                 max: 1
                 value: 1
                 step: 0.01
                 on_value:
-                    root.scroll_change(main_scrollview, self)
-
-        BoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None # for height
-            height: 45
-            Button:
-                text: "Change paths"
-                background_normal: ''
-                background_color: .14, .14, .25, 1
-                on_press:
-                    app.root.transition = SlideTransition(direction='left')
-                    app.root.current = "settings_screen"
-
-            Button:
-                text: "Save Configuration"
-                background_normal: ''
-                background_color: .14, .25, .14, 1
-                on_press: app.save_rainmeter_config()
+                    main_scrollview.scroll_y = self.value
 
 
 <SettingsScreen>:
@@ -161,7 +160,7 @@
             Button:
                 text: "Save"
                 on_release:
-                    app.save_path_config()
+                    mainutils.save_path_configuration(app)
                     app.root.transition = SlideTransition(direction='right')
                     app.root.current = "main_screen"
                     root.rebuild_if_needed(app)
@@ -187,6 +186,10 @@
     size_hint: 1, None
     height: 56
 
+    drag_rectangle: self.x, self.y, self.width, self.height
+    drag_timeout: 100000000
+    drag_distance: 0
+
     canvas.before:
         Color:
             rgb: .03,.03,.03
@@ -195,27 +198,6 @@
             size: self.size
 
     on_press: self.open_entry_options_popup()
-
-    GridLayout:
-        padding: 0
-        spacing: 0
-        rows: 2
-        size_hint_x: None
-        width: 25
-
-        Button:
-            font_size: 20
-            text: "^"
-            background_down: self.background_normal
-            on_press: app.main.move_entry_up(root.index)
-
-        Button:
-            font_size: 17
-            text: "v"
-            background_down: self.background_normal
-            on_press: app.main.move_entry_down(root.index)
-
-
     Label:
         id: icon_info
         font_size: 22
@@ -225,30 +207,23 @@
         shorten_from: 'center'
 
 
-<OptionsPopup>:
+<ImageOptionsPopup>:
     title: "Select image"
     title_size: 20
-    size_hint: .5, .5
+    auto_dismiss: False
+    size_hint: .5, .6
 
     BoxLayout:
         orientation: "vertical"
         size_hint: 1, 1
         spacing: 5
 
-        BoxLayout:
-            id: popup_layout
-            spacing: 3
-            orientation: "horizontal"
-            size_hint_y: 1
-
-
-            ArrowButton:
-                text: '<--'
-                on_release: root.previous_image()
-
-            ArrowButton:
-                text: '-->'
-                on_release: root.next_image()
+        GridLayout:
+            id: image_grid
+            cols: 5
+            rows: 4
+            padding: 10
+            spacing: 10
 
         BoxLayout:
             orientation: "horizontal"
@@ -278,3 +253,7 @@
     size_hint_x: None
     width: 60
 
+<ToggleImage>:
+    group: "images"
+    size: ICON_SIZE
+    allow_stretch: False

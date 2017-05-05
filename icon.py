@@ -12,7 +12,6 @@ class UrlBytes:
 class Icon:
     # TODO: use official Google API
     GOOGLE_URL_TEMPLATE = "https://www.google.com/search?q={}+icon+filetype:png&tbm=isch&source=lnt&tbs=iar:s"
-    index = -1
 
     def __init__(self, name: str,
                  image_save_path: str,
@@ -21,6 +20,7 @@ class Icon:
         self.name = name
         self.image_save_path = image_save_path
         self.app_path = app_path
+        self.index = -1
 
         self.url_bytes = []
         self.icon_path = self.bytes_on_disk = None
@@ -44,11 +44,10 @@ class Icon:
         self.bytes_on_disk = crop_icon_back(self.icon_path)
 
     def current_icon_bytes(self):
-        """
         if self.index == -1 and self.bytes_on_disk:
             self.bytes_on_disk.seek(0)
             return self.bytes_on_disk
-        """
+
         current_urlbytes = self.url_bytes[self.index]
         if current_urlbytes.bytes is None:
             current_urlbytes.bytes = url_to_bytes(current_urlbytes.url)

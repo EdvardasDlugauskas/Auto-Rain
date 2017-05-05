@@ -71,3 +71,5 @@ Y=2R
 ButtonImage="{}"
 ButtonCommand=!execute ["{}"]
 """
+
+ICON_SIZE = 48, 48
