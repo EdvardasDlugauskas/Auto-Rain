@@ -6,7 +6,9 @@ A GUI to automate updating [Rainmeter](https://www.rainmeter.net/) .ini files an
 ![Image selection menu](preview/image_selection.png "Selecting the icon for your game/app")
 
 # Quick guide
-A Windows executable can be found in the ./dist directory. Download the folder. Run app.exe. 
+A Windows executable can be found in the ./dist directory. Download the folder. Run `app.exe`.
+
+You can also only download the `force_update.bat` file, put it in a folder, execute it. The needed files will be downloaded in your working directory.
 
 ## Configuring the application save paths
 
