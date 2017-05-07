@@ -85,11 +85,16 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 	def on_touch_down(self, touch):
 		super().on_touch_down(touch)
+		if not self.collide_point(*touch.pos):
+			return
+
 		if touch.grab_list and touch.grab_list[0]() is self:  # if this widget was grabbed
 			self.main_parent = self.parent  # remember your parent
 
 	def on_touch_move(self, touch):
 		super().on_touch_move(touch)
+		if not self.collide_point(*touch.pos):
+			return
 		#                      touch.grab_current ?
 		if touch.grab_list and touch.grab_list[0]() is self:  # if this widget was grabbed
 			self.main_parent = self.parent  # remember your parent
@@ -149,8 +154,7 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 			self.scrolling = False
 
 	def on_touch_up(self, touch):
-
-		if self._drag_touch:
+		if self.collide_point(*touch.pos) and self._drag_touch:
 			self.main_parent.remove_widget(self)
 			new_index = self.get_new_index()
 			self.main_parent.add_widget(self, index=new_index)
@@ -190,16 +194,19 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 		popup.open()
 
 
-class ToggleImage(ToggleButtonBehavior, AsyncImage):
-	def __init__(self, index: int, **kwargs):
+class ToggleImage(AsyncImage):
+	def __init__(self, index: int, main_parent, **kwargs):
 		super().__init__(**kwargs)
+		self.main_parent = main_parent
 		self.index = index
 
-	def on_state(self, widget, value):
-		if value == "down":
-			self.color = [0, 1, 0, .5]
-		else:
-			self.color = [1, 1, 1, 1]
+	def on_touch_down(self, touch):
+		# check for double taps first
+		if self.collide_point(*touch.pos):
+			if touch.is_double_tap:
+				self.main_parent.save(self)
+
+		super().on_touch_down(touch)
 
 
 class ImageOptionsPopup(Popup):
@@ -208,7 +215,7 @@ class ImageOptionsPopup(Popup):
 		self.entry = entry
 
 		for index, icon_urlbytes in enumerate(entry.icon.url_bytes):
-			aiw = ToggleImage(index=index, source=icon_urlbytes.url)
+			aiw = ToggleImage(index=index, main_parent=self, source=icon_urlbytes.url)
 			self.ids.image_grid.add_widget(aiw)
 
 	def next_image(self):
@@ -222,14 +229,7 @@ class ImageOptionsPopup(Popup):
 	def set_image(self):
 		self.img.texture = CoreImage(self.icon.current_icon_bytes(), ext="png").texture
 
-	def save(self):
-		for image in self.ids.image_grid.children:
-			if image.state == "down":
-				selection = image
-				break
-		else:  # no-break
-			return
-
+	def save(self, selection):
 		self.entry.icon.index = selection.index
 		self.entry.img.texture = selection.texture
 		self.dismiss()

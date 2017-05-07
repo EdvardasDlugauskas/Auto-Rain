@@ -208,42 +208,25 @@
 
 
 <ImageOptionsPopup>:
-    title: "Select image"
+    title: "Double-tap to select"
     title_size: 20
-    auto_dismiss: False
-    size_hint: .5, .6
+    auto_dismiss: True
+    size_hint: .6, .7
 
-    BoxLayout:
-        orientation: "vertical"
+    GridLayout:
         size_hint: 1, 1
-        spacing: 5
+        pos_hint: {'center_x': .5, 'center_y': .5}
+        id: image_grid
+        cols: 5
+        rows: 4
+        padding: 10
+        spacing: 10
 
-        GridLayout:
-            id: image_grid
-            cols: 5
-            rows: 4
-            padding: 10
-            spacing: 10
-
-        BoxLayout:
-            orientation: "horizontal"
-            size_hint_y: None
-            height: 40
-            spacing: 5
-
-            Button:
-                text: 'Cancel'
-                on_release: root.dismiss()
-                background_normal: ''
-                background_color: .25, .14, .14, 1
-
-            Button:
-                size_hint_y: None
-                height: 40
-                text: 'Save'
-                background_normal: ''
-                background_color: .14, .25, .14, 1
-                on_release: root.save()
+<ToggleImage>:
+    group: "images"
+    allow_stretch: False
+    size_hint: 1, 1
+    size_hint_max: ICON_SIZE
 
 
 <ArrowButton@Button>:
@@ -253,7 +236,4 @@
     size_hint_x: None
     width: 60
 
-<ToggleImage>:
-    group: "images"
-    size: ICON_SIZE
-    allow_stretch: False
+

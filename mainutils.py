@@ -107,5 +107,7 @@ def sort_by_ini(icons: List[Icon], ini_path: str = None, ini_str: str = None) ->
 
         return sorted(icons, key=lambda x: sort_list.index(x.name) if x.name in sort_list else -1)
 
-    except:
+    except Exception as e:
+        print("Sorting by ini exception: ")
+        print(e)
         return icons
