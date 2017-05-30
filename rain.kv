@@ -215,25 +215,15 @@
 
     GridLayout:
         size_hint: 1, 1
-        pos_hint: {'center_x': .5, 'center_y': .5}
         id: image_grid
         cols: 5
         rows: 4
         padding: 10
         spacing: 10
 
+
 <ToggleImage>:
     group: "images"
     allow_stretch: False
-    size_hint: 1, 1
-    size_hint_max: ICON_SIZE
-
-
-<ArrowButton@Button>:
-    pos_hint: {'center_y': 0.5}
-    size_hint_y: None
-    height: 40
-    size_hint_x: None
-    width: 60
 
 

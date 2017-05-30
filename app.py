@@ -1,6 +1,10 @@
 import win32timezone
 import encodings.idna  # required for PyInstaller
 
+from kivy.config import Config
+
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
 from kivy.app import App
 from kivy.properties import StringProperty, ListProperty, ObjectProperty
 from mainutils import *
@@ -8,13 +12,11 @@ from widgets import ListEntry, MainScreenManager
 
 
 class RainApp(App):
-    IMG_SAVE_PATH = StringProperty(
-        ".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left\\Icons"
-    APP_PATH = StringProperty(".")  # 'C:\\Users\\Family\\Desktop\\Root\\Games' # Insert folder file
-    INI_PATH = StringProperty(".")  # "C:\\Users\\Family\\Documents\\Rainmeter\\Skins\\Dektos by Tibneo\\Dock\\Left"
+    IMG_SAVE_PATH = StringProperty(".")
+    APP_PATH = StringProperty(".")
+    INI_PATH = StringProperty(".")
 
     main = ObjectProperty(None)
-    icon = ListProperty([])
 
     def __init__(self):
         super().__init__()

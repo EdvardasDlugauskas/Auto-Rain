@@ -1,7 +1,7 @@
 from functools import partial
 
 from kivy.core.image import Image as CoreImage
-from kivy.properties import ObjectProperty, BooleanProperty, BoundedNumericProperty
+from kivy.properties import ObjectProperty, BooleanProperty
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import AsyncImage
@@ -10,7 +10,6 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.clock import Clock
 from kivy.uix.behaviors import DragBehavior
 from kivy.uix.scrollview import ScrollView
-from kivy.uix.togglebutton import ToggleButtonBehavior
 
 from icon_get import core_img_from_url
 
@@ -53,17 +52,7 @@ class SettingsScreen(Screen):
 
 
 class MainScreenManager(ScreenManager):
-	def move_entry_down(self, index: int):
-		children = self.current_screen.ids.entry_list.children
-		if index > 0:
-			children[index], children[index - 1] = children[index - 1], children[index]
-			children[index].index, children[index - 1].index = children[index - 1].index, children[index].index
-
-	def move_entry_up(self, index: int):
-		children = self.current_screen.ids.entry_list.children
-		if index < len(children) - 1:
-			children[index], children[index + 1] = children[index + 1], children[index]
-			children[index].index, children[index + 1].index = children[index + 1].index, children[index].index
+	pass
 
 
 class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
@@ -95,8 +84,8 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 		super().on_touch_move(touch)
 		if not self.collide_point(*touch.pos):
 			return
-		#                      touch.grab_current ?
-		if touch.grab_list and touch.grab_list[0]() is self:  # if this widget was grabbed
+		# ?
+		if touch.grab_list and touch.grab_current is self:  # if this widget was grabbed
 			self.main_parent = self.parent  # remember your parent
 
 			# make this widget be drawn on top
@@ -195,7 +184,7 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 
 class ToggleImage(AsyncImage):
-	def __init__(self, index: int, main_parent, **kwargs):
+	def __init__(self, main_parent, index, **kwargs):
 		super().__init__(**kwargs)
 		self.main_parent = main_parent
 		self.index = index
@@ -214,8 +203,8 @@ class ImageOptionsPopup(Popup):
 		super().__init__(**kwargs)
 		self.entry = entry
 
-		for index, icon_urlbytes in enumerate(entry.icon.url_bytes):
-			aiw = ToggleImage(index=index, main_parent=self, source=icon_urlbytes.url)
+		for i, icon_urlbytes in enumerate(entry.icon.url_bytes):
+			aiw = ToggleImage(main_parent=self, index=i, source=icon_urlbytes.url)
 			self.ids.image_grid.add_widget(aiw)
 
 	def next_image(self):
