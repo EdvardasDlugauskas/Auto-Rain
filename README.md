@@ -1,11 +1,14 @@
 # Auto-Rain
+
+![Preview](preview/preview_gif.gif "Preview of app functionality")
+
 A GUI to automate updating [Rainmeter](https://www.rainmeter.net/) .ini files and generating icons for executables. Currently only supports Dektos by Tibneo skin vertical right-side bar.
 
 ![Main menu](preview/main_screen.png "The main screen of the app")
 
 ![Image selection menu](preview/image_selection.png "Selecting the icon for your game/app")
 
-# Quick guide
+## Quick guide
 A Windows executable can be found in the ./dist directory. Download the folder. Run `app.exe`.
 
 You can also only download the `force_update.bat` file, put it in a folder, execute it. The needed files will be downloaded in your working directory.
