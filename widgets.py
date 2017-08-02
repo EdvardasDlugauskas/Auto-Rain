@@ -1,10 +1,11 @@
 from functools import partial
 
 from kivy.core.image import Image as CoreImage
-from kivy.properties import ObjectProperty, BooleanProperty
-from kivy.uix.behaviors import ButtonBehavior
+from kivy.properties import ObjectProperty, BooleanProperty, StringProperty
+from kivy.uix.behaviors import ButtonBehavior, ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import AsyncImage
+from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.clock import Clock
@@ -183,7 +184,7 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 		popup.open()
 
 
-class ToggleImage(AsyncImage):
+class ToggleImage(ToggleButtonBehavior, AsyncImage):
 	def __init__(self, main_parent, index, **kwargs):
 		super().__init__(**kwargs)
 		self.main_parent = main_parent
@@ -197,6 +198,13 @@ class ToggleImage(AsyncImage):
 
 		super().on_touch_down(touch)
 
+	def on_state(self, widget, value):
+		if value == "down":
+			# Darker
+			self.color = [.8, .8, .8, .5]
+		else:
+			# Normal
+			self.color = [1, 1, 1, 1]
 
 class ImageOptionsPopup(Popup):
 	def __init__(self, entry, **kwargs):
@@ -222,3 +230,11 @@ class ImageOptionsPopup(Popup):
 		self.entry.icon.index = selection.index
 		self.entry.img.texture = selection.texture
 		self.dismiss()
+
+
+class WrappedLabel(ScrollView):
+	text = StringProperty()
+
+	def __init__(self, text, **kwargs):
+		super().__init__(**kwargs)
+		self.text = text

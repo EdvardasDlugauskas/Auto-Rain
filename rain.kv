@@ -25,6 +25,13 @@
     valign: "middle"
     halign: "center"
 
+<WrappedLabel>:
+    Label:
+        text: root.text
+        size_hint_y: None
+        height: self.texture_size[1]  # the size needed to fit the text
+        text_size: self.width, None
+
 <MainScreen>:
     name: "main_screen"
 
