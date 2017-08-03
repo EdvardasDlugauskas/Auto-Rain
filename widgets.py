@@ -23,22 +23,31 @@ Y_MIN_SCROLL = 3
 
 
 class MyScroll(ScrollView):
+	"""
+	A scrollview with disabled scrolling by dragging the mouse.
+	"""
+
 	def on_touch_down(self, touch):
+		# Block mouse dragging scrolls
 		if touch.device == "mouse" and not touch.button.startswith("scroll"):
 			self.do_scroll_y = False
 			super().on_touch_down(touch)
 			self.do_scroll_y = True
 		else:
+			# Don't block the mouse wheel scrolls
 			super().on_touch_down(touch)
-
-		# on scrolls?
 
 
 class MainScreen(Screen):
-	""" on_scroll_change and on_slider_change bind the slider and scrollview together.
+	""" TODO: remove this?
+	on_scroll_change and on_slider_change bind the slider and scrollview together.
 	"""
 
 	def move_canvas_up(self, child):
+		"""
+		Draws some childs canvas over everything else.
+		Useful when dragging an icon over other icons.
+		"""
 		self.canvas.remove(child.canvas)
 		self.canvas.insert(len(self.canvas.get_group(None)), child.canvas)
 
@@ -57,10 +66,13 @@ class MainScreenManager(ScreenManager):
 
 
 class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
+	"""
+	The main icon list entry. Is a grid with an icon and the name, can be clicked.
+	"""
 	img = ObjectProperty(None)
 	icon = ObjectProperty(None)
 	main_parent = ObjectProperty(None)
-	scrolling = BooleanProperty(False)
+	is_scrolling = BooleanProperty(False)
 
 	def __init__(self, icon, **kwargs):
 		super().__init__(**kwargs)
@@ -94,13 +106,13 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 			self.parent.canvas.insert(len(self.parent.canvas.get_group(None)), self.canvas)
 
 			x, y = touch.spos  # position in the 0-1 coordinate system
-			if (y > 0.85 or y < 0.15) and not self.scrolling:
+			if (y > 0.85 or y < 0.15) and not self.is_scrolling:
 				self.scrolling = True
 				Clock.schedule_once(partial(self.move_slider, touch), 0.05)
 
 	def move_slider(self, touch, dt=None):
-		if not touch.grab_list or not self.scrolling:
-			self.scrolling = False
+		if not touch.grab_list or not self.is_scrolling:
+			self.is_scrolling = False
 			return
 
 		relative_touch_y = touch.spos[1]  # in range 0-1, the relative position on screen
@@ -141,7 +153,7 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 			Clock.schedule_once(partial(self.move_slider, touch), 0.03)
 
 		else:
-			self.scrolling = False
+			self.is_scrolling = False
 
 	def on_touch_up(self, touch):
 		if self.collide_point(*touch.pos) and self._drag_touch:
@@ -185,6 +197,10 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 
 class ToggleImage(ToggleButtonBehavior, AsyncImage):
+	"""
+	The toggle image. Used when selecting a preferred icon from the grid.
+	"""
+
 	def __init__(self, main_parent, index, **kwargs):
 		super().__init__(**kwargs)
 		self.main_parent = main_parent
@@ -206,7 +222,11 @@ class ToggleImage(ToggleButtonBehavior, AsyncImage):
 			# Normal
 			self.color = [1, 1, 1, 1]
 
+
 class ImageOptionsPopup(Popup):
+	"""
+	Shows possible icons for an app/game. Lets user select one.
+	"""
 	def __init__(self, entry, **kwargs):
 		super().__init__(**kwargs)
 		self.entry = entry
@@ -233,6 +253,7 @@ class ImageOptionsPopup(Popup):
 
 
 class WrappedLabel(ScrollView):
+	""" A label with wrapped text and scrolling if needed."""
 	text = StringProperty()
 
 	def __init__(self, text, **kwargs):

@@ -14,12 +14,16 @@ from widgets import ListEntry, MainScreenManager, WrappedLabel
 
 
 class RainApp(App):
+	"""
+	Main AutoRain app.
+	"""
 	IMG_SAVE_PATH = StringProperty(".")
 	APP_PATH = StringProperty(".")
 	INI_PATH = StringProperty(".")
 
 	main = ObjectProperty(None)
 
+	# For initialization errors
 	init_errors = ""
 
 	def __init__(self):
@@ -45,6 +49,9 @@ class RainApp(App):
 		self.populate_main()
 
 	def populate_main(self):
+		"""
+		Get the icons asynchronously, in-place.
+		"""
 		loop = asyncio.get_event_loop()
 		icons = loop.run_until_complete(get_icon_objs(self))
 		icons = sort_by_ini(icons, path.join(self.INI_PATH, "Left Dock.ini"))
@@ -55,10 +62,16 @@ class RainApp(App):
 			self.main.current_screen.ids.entry_list.add_widget(new)
 
 	def reload_images(self):
+		"""
+		Reload the images of icon objects.
+		"""
 		for entry in self.main.current_screen.ids.entry_list.children:
 			entry.set_image()
 
 	def build_config(self, config):
+		"""
+		Builds a config if there isn't one.
+		"""
 		config.setdefaults('paths', {
 			'IMG_SAVE_PATH': '.',
 			'APP_PATH': '.',
@@ -66,6 +79,10 @@ class RainApp(App):
 		})
 
 	def set_paths(self):
+		"""
+		Reads the paths from the rain.ini file and uses them.
+		Checks that paths exist and sets to default if they don't.
+		"""
 		default_path = os.path.expanduser("~")
 		config = self.config
 		self.APP_PATH = config.get("paths", "APP_PATH")
@@ -87,6 +104,11 @@ class RainApp(App):
 			self.IMG_SAVE_PATH = default_path
 
 	def select_path(self, target: str):
+		"""
+		Opens a popup for selecting a path. Implicitly replaces the internal value
+		called `target` to the path returned by the selection popup.
+		:param target: string for the target internal variable to set
+		"""
 		popup = Popup(size_hint=(.9, .9), title="Select path")
 
 		browser = FileBrowser(select_string='Save', dirselect=True,

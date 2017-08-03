@@ -7,7 +7,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
 from const_info import CONST_INFO, TEMPLATE, VALID_EXTENSIONS
-from icon import Icon
+from iconmanager import IconManager
 from icon_get import save_full_icon
 from libs.garden.filebrowser import FileBrowser
 
@@ -57,7 +57,6 @@ async def get_icon_objs(app):
     """
     Gets the icons for apps/games asynchronously
     :param app: RainApp instance
-    :return:
     """
 
     directory = scandir(app.APP_PATH)
@@ -67,7 +66,7 @@ async def get_icon_objs(app):
     for program in accepted_programs:
         name, extension = path.splitext(program.name)
         if extension in VALID_EXTENSIONS:
-            valid_files.append(Icon(name=name, image_save_path=app.IMG_SAVE_PATH, app_path=program.path))
+	        valid_files.append(IconManager(name=name, image_save_path=app.IMG_SAVE_PATH, app_path=program.path))
 
     # Async stuff
     loop = asyncio.get_event_loop()
@@ -80,6 +79,11 @@ async def get_icon_objs(app):
 
 
 def browser_selection(instance: FileBrowser):
+	"""
+	Returns the selected desired path from a FileBrowser instance:
+	- Current dir if nothing selected.
+	- First selection if many selected.
+	"""
     if not instance.selection:
         # If nothing is selected, choose current dir
         selection = instance.path
@@ -89,7 +93,15 @@ def browser_selection(instance: FileBrowser):
     return selection
 
 
-def sort_by_ini(icons: List[Icon], ini_path: str = None, ini_str: str = None) -> List[Icon]:
+def sort_by_ini(icons: List[IconManager], ini_path: str = None, ini_str: str = None) -> List[IconManager]:
+	"""
+	Tries to find and parse the .ini file and sort the icon objects according to it.
+	Does not throw any exceptions.
+	:param icons:
+	:param ini_path:
+	:param ini_str:
+	:return:
+	"""
     try:
         if ini_path is ini_str is None:
             raise ValueError("No .ini path or string provided.")
@@ -101,6 +113,8 @@ def sort_by_ini(icons: List[Icon], ini_path: str = None, ini_str: str = None) ->
         elif ini_str:
             text = ini_str
 
+        # The part we're after is after the word "APPLICATION"
+        # Warning: can be broken by modifying the .ini file structure.
         text = text.split("APPLICATION")[1]
         pattern = "\[(.*?)\]"
         sort_list = re.findall(pattern, text)

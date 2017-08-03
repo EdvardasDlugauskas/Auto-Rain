@@ -1,7 +1,7 @@
 import icon_get
 import unittest
 import mainutils
-import icon
+import iconmanager
 
 test_ini = """
 [Rainmeter]
@@ -96,7 +96,7 @@ class SmokeTests(unittest.TestCase):
 
     def test_sorting_by_ini(self):
         icon_names = ["Terraria", "movie maker", "video editor", "stackoverflow help", "new program"]
-        icons = [icon.Icon(name=icon_name, image_save_path=".", app_path=".") for icon_name in icon_names]
+        icons = [iconmanager.IconManager(name=icon_name, image_save_path=".", app_path=".") for icon_name in icon_names]
 
         correctly_sorted_names = ["new program", "video editor", "stackoverflow help", "movie maker", "Terraria"]
         icons = mainutils.sort_by_ini(icons, ini_str=test_ini)
