@@ -2,6 +2,7 @@ from io import BytesIO
 
 from PIL import ImageEnhance, Image, ImageOps, ImageDraw, ImageChops
 from bs4 import BeautifulSoup
+from kivy.app import App
 from kivy.core.image import Image as CoreImage
 from requests import get
 
@@ -50,9 +51,25 @@ def get_urls(search_term):
 def save_full_icon(image_bytes, save_path):
     image = Image.open(image_bytes)
     # image.convert("RGBA")
+    pixel_hue = App.get_running_app().config.get("image", "PIXEL_HUE")
 
-    # draw = ImageDraw.Draw(image)
-    # draw.rectangle(xy=(0, 0, image.width-1, image.height-1), outline=6)
+    if pixel_hue.lower() != "None":
+	    try:
+		    new_hue = int(pixel_hue)
+		    if not 0 <= new_hue <= 360:
+			    raise Exception("Bad Hue value")
+
+		    pixdata = list(image.convert("HSV").getdata())
+		    new_data = list()
+		    new_hue = int(pixel_hue)
+		    for pixel in pixdata:
+			    h, s, v = pixel
+			    new_data.append((new_hue, s, v))
+
+		    image = image.convert("HSV")
+		    image.putdata(new_data)
+	    except:
+		    pass
 
     # Absolutely needed for some reason, do not remove
     # del draw

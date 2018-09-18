@@ -69,6 +69,7 @@ def save_path_configuration(app):
     config.set("paths", "APP_PATH", app.APP_PATH)
     config.set("paths", "INI_PATH", app.INI_PATH)
     config.set("paths", "IMG_SAVE_PATH", app.IMG_SAVE_PATH)
+    config.set("image", "PIXEL_HUE", config.get("image", "PIXEL_HUE"))
     config.write()
 
 async def get_icon_objs(app):

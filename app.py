@@ -78,6 +78,11 @@ class RainApp(App):
 			'INI_PATH': '.'
 		})
 
+		config.setdefaults('image',
+		                   {
+			                   'PIXEL_HUE': 'None',
+		                   })
+
 	def set_paths(self):
 		"""
 		Reads the paths from the rain.ini file and uses them.

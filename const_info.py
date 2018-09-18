@@ -12,9 +12,9 @@ VALID_EXTENSIONS = ['.lnk', '.exe', '.url']
 TEMPLATE = """
 [{}]
 Meter=Button
-Y=2R
+Y=23R
 ButtonImage="{}"
 ButtonCommand=!execute ["{}"]
 """
 
-ICON_SIZE = 50, 50
+ICON_SIZE = 60, 60
