@@ -22,3 +22,6 @@ If you'd rather copy and paste your app, .ini, and image save paths, open rain.i
 ![Path selection](preview/path_selection.png "Selecting a path in the application")
 
 
+## Building .exe from application
+
+Run `pyinstaller app.spec` in project root directory. Copy the latest version of .kv file in the `dist` directory.
