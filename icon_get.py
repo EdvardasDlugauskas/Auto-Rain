@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from PIL import ImageEnhance, Image, ImageOps, ImageDraw
+from PIL import ImageEnhance, Image, ImageOps, ImageDraw, ImageChops
 from bs4 import BeautifulSoup
 from kivy.core.image import Image as CoreImage
 from requests import get
@@ -44,19 +44,28 @@ def url_to_bytes(url):
 
 def get_urls(search_term):
     parsed_response = BeautifulSoup(get(GOOGLE_URL_TEMPLATE.format(search_term)).text, "html.parser")
-    return [x['src'] for x in parsed_response.find_all("img")]
+    return [x['src'] for x in parsed_response.find_all("img") if x['src'].startswith("http")]
 
 
 def save_full_icon(image_bytes, save_path):
     image = Image.open(image_bytes)
+    # image.convert("RGBA")
 
-    image.thumbnail(ICON_SIZE, Image.ANTIALIAS)
+    # draw = ImageDraw.Draw(image)
+    # draw.rectangle(xy=(0, 0, image.width-1, image.height-1), outline=6)
+
+    # Absolutely needed for some reason, do not remove
+    # del draw
+
+    image.thumbnail(ICON_SIZE, 0)  # Image.ANTIALIAS)
     w, h = ICON_SIZE
 
+    # The three thumbnail images
     new_image = Image.new("RGBA", (w * 3, h))
     img_two = ImageEnhance.Sharpness(image.convert("RGB"))
     img_three = ImageEnhance.Brightness(image.convert("RGB"))
 
+    # Paste them in order
     new_image.paste(image, (0, 0))
     new_image.paste(img_two.enhance(2), (w, 0))
     new_image.paste(img_three.enhance(1.5), (w * 2, 0))
@@ -67,6 +76,8 @@ def save_full_icon(image_bytes, save_path):
     new_image.paste(make_into_shape(img_three.enhance(1.5)), (w * 2, 0))
 
     """
+
+
 
     new_image.save(save_path)
 
@@ -81,3 +92,36 @@ def make_into_shape(image):
     output.putalpha(mask)
 
     return output
+
+
+def make_white_transparent(img: Image):
+    """
+    Makes the white (background) transparent. Inplace.
+    :param img: Image object to change inplace
+    :return: None
+    """
+    # Access to pixel data
+    pixdata = img.load()
+
+    width, height = img.size
+    for y in range(height):
+        for x in range(width):
+            if pixdata[x, y] == (255, 255, 255, 255):
+                pixdata[x, y] = (255, 255, 255, 0)
+
+
+def trim(im, border=(255, 255, 255, 255)):
+    """
+    Trims whitespace around an image.
+    :param im:
+    :param border:
+    :return:
+    """
+    bg = Image.new("RGBA", im.size, "white")
+    diff = ImageChops.difference(im, bg)
+    bbox = diff.getbbox()
+    if bbox:
+        return im.crop(bbox)
+    else:
+        # found no content
+        raise ValueError("Cannot trim - image was empty.")

@@ -3,6 +3,8 @@ import re
 from os import path, scandir
 from typing import List
 
+from kivy.uix.behaviors import DragBehavior
+from kivy.uix.image import AsyncImage  # TODO: move this to another file
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 
@@ -12,11 +14,26 @@ from icon_get import save_full_icon
 from libs.garden.filebrowser import FileBrowser
 
 
+class DragImage(DragBehavior, AsyncImage):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.drag_rectangle = self.x, self.y, self.width, self.height
+        self.drag_timeout = 100000000
+        self.drag_distance = 0
+
 def save_rainmeter_configuration(app):
     """
     Saves the .ini file and gives a notification popup on completion.
     :param app: RainApp - main application instance
     """
+
+    ''' This was a demo test for grid thumbnail functionality
+    app.main.current = "icon_position_screen"
+    icon_grid = app.main.current_screen.ids.icon_grid
+    for i in range(21*5):
+        icon_grid.add_widget(DragImage(size=(50, 50)))
+
+    '''
     title = "Success!"
     text = "Saved successfully."
     try:
@@ -25,11 +42,11 @@ def save_rainmeter_configuration(app):
     except Exception as e:
         title = "Error!"
         text = str(e)
+        raise
 
     popup = Popup(size_hint=(.45, .30), title=title)
     popup.add_widget(Label(text=text, font_size=15))
     popup.open()
-
 
 def write_info(app):
     """
@@ -37,8 +54,9 @@ def write_info(app):
     :param app: RainApp - main application instance
     :return: None
     """
-    with open(path.join(app.INI_PATH, "Left Dock.ini"), "w") as ini_file:
+    with open(path.join(app.INI_PATH, "Dock.ini"), "w") as ini_file:
         ini_file.write(CONST_INFO)
+        #TODO: Change the save function
         for entry in reversed(app.main.current_screen.ids.entry_list.children):
             icon = entry.icon
             ini_file.write(TEMPLATE.format(icon.name, icon.icon_path, icon.app_path))
@@ -66,7 +84,7 @@ async def get_icon_objs(app):
     for program in accepted_programs:
         name, extension = path.splitext(program.name)
         if extension in VALID_EXTENSIONS:
-	        valid_files.append(IconManager(name=name, image_save_path=app.IMG_SAVE_PATH, app_path=program.path))
+            valid_files.append(IconManager(name=name, image_save_path=app.IMG_SAVE_PATH, app_path=program.path))
 
     # Async stuff
     loop = asyncio.get_event_loop()
@@ -79,11 +97,11 @@ async def get_icon_objs(app):
 
 
 def browser_selection(instance: FileBrowser):
-	"""
-	Returns the selected desired path from a FileBrowser instance:
-	- Current dir if nothing selected.
-	- First selection if many selected.
-	"""
+    """
+    Returns the selected desired path from a FileBrowser instance:
+    - Current dir if nothing selected.
+    - First selection if many selected.
+    """
     if not instance.selection:
         # If nothing is selected, choose current dir
         selection = instance.path
@@ -94,14 +112,14 @@ def browser_selection(instance: FileBrowser):
 
 
 def sort_by_ini(icons: List[IconManager], ini_path: str = None, ini_str: str = None) -> List[IconManager]:
-	"""
-	Tries to find and parse the .ini file and sort the icon objects according to it.
-	Does not throw any exceptions.
-	:param icons:
-	:param ini_path:
-	:param ini_str:
-	:return:
-	"""
+    """
+    Tries to find and parse the .ini file and sort the icon objects according to it.
+    Does not throw any exceptions.
+    :param icons:
+    :param ini_path:
+    :param ini_str:
+    :return:
+    """
     try:
         if ini_path is ini_str is None:
             raise ValueError("No .ini path or string provided.")

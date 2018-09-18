@@ -54,7 +54,7 @@ class RainApp(App):
 		"""
 		loop = asyncio.get_event_loop()
 		icons = loop.run_until_complete(get_icon_objs(self))
-		icons = sort_by_ini(icons, path.join(self.INI_PATH, "Left Dock.ini"))
+		icons = sort_by_ini(icons, path.join(self.INI_PATH, "Dock.ini"))
 
 		for icon in icons:
 			# Reverse order for the right index

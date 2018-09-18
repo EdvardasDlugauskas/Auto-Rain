@@ -7,6 +7,7 @@
 <MainScreenManager>:
     MainScreen:
     SettingsScreen:
+    PositionSettingScreen:
 
 <GridLayout>:
     padding: 2
@@ -173,6 +174,35 @@
                     root.rebuild_if_needed(app)
                 background_normal: ''
                 background_color: .14, .25, .14, 1
+
+<PositionSettingScreen@Screen>:
+    name: "icon_position_screen"
+
+    ScrollView:
+        pos_hint_x: .5
+        GridLayout:
+            canvas.before:
+                Color:
+                    rgb: 1,.03,.03
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            id: icon_grid
+            size_hint_y: None # required for scrolling
+            size_hint_x: None
+            size: self.minimum_size
+
+
+
+            row_force_default: True
+            row_default_height: 50
+            col_force_default: True
+            col_default_width: 50
+
+            cols: 5
+            rows: 21
+
 
 
 <SettingsEntry@GridLayout>:

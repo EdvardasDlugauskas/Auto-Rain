@@ -18,8 +18,8 @@ from icon_get import core_img_from_url
 LOWER_SCREEN_SCROLL_BOUNDARY = 0.10
 UPPER_SCREEN_SCROLL_BOUNDARY = 0.85
 
-Y_MAX_SCROLL = 25
-Y_MIN_SCROLL = 3
+Y_MAX_SCROLL_SPEED = 25
+Y_MIN_SCROLL_SPEED = 3
 
 
 class MyScroll(ScrollView):
@@ -120,8 +120,8 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 		if relative_touch_y > UPPER_SCREEN_SCROLL_BOUNDARY:
 			distance = ((relative_touch_y - UPPER_SCREEN_SCROLL_BOUNDARY) * 100) ** 2
-			distance = Y_MAX_SCROLL if distance > Y_MAX_SCROLL \
-				else Y_MIN_SCROLL if distance < Y_MIN_SCROLL \
+			distance = Y_MAX_SCROLL_SPEED if distance > Y_MAX_SCROLL_SPEED \
+				else Y_MIN_SCROLL_SPEED if distance < Y_MIN_SCROLL_SPEED \
 				else distance  # in bounds
 			scroll_distance = scrollview.convert_distance_to_scroll(0, distance)[1]
 
@@ -137,8 +137,8 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 		elif relative_touch_y < LOWER_SCREEN_SCROLL_BOUNDARY:
 			distance = ((LOWER_SCREEN_SCROLL_BOUNDARY - relative_touch_y) * 100) ** 2
-			distance = Y_MAX_SCROLL if distance > Y_MAX_SCROLL \
-				else Y_MIN_SCROLL if distance < Y_MIN_SCROLL \
+			distance = Y_MAX_SCROLL_SPEED if distance > Y_MAX_SCROLL_SPEED \
+				else Y_MIN_SCROLL_SPEED if distance < Y_MIN_SCROLL_SPEED \
 				else distance  # in bounds
 			scroll_distance = scrollview.convert_distance_to_scroll(0, distance)[1]
 
@@ -181,6 +181,7 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 				return index + 1
 
 	def set_image(self):
+		'''
 		# Crop img if it exists already
 		if self.icon.icon_on_disk:
 			self.icon.bytes_on_disk.seek(0)
@@ -188,8 +189,9 @@ class ListEntry(DragBehavior, ButtonBehavior, BoxLayout):
 
 		else:
 			core_img = core_img_from_url(self.icon.get_next_icon_url())
+			'''
 
-		self.img.texture = core_img.texture
+		self.img.texture = self.icon.core_image.texture
 
 	def open_entry_options_popup(self):
 		popup = ImageOptionsPopup(self)

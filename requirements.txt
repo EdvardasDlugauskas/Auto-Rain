@@ -1,5 +1,4 @@
 kivy
-PIL
 bs4
 requests
 pillow

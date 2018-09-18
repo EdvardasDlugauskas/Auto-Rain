@@ -1,6 +1,8 @@
 from os import path, listdir
 
-from icon_get import get_urls, url_to_bytes, crop_icon_back
+from kivy.core.image import Image as CoreImage
+
+from icon_get import get_urls, url_to_bytes, crop_icon_back, core_img_from_url
 
 
 class UrlBytes:
@@ -28,6 +30,15 @@ class IconManager:
 		self.url_bytes = []
 		self.icon_path = self.bytes_on_disk = None
 		self.set_icon_path()  # sets icon_path and bytes_on_disk
+
+	@property
+	def core_image(self):
+		if self.icon_on_disk:
+			self.bytes_on_disk.seek(0)
+			return CoreImage(self.bytes_on_disk, ext="png")
+
+		else:
+			return core_img_from_url(self.get_next_icon_url())
 
 	@property
 	def icon_on_disk(self):
